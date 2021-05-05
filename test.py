@@ -2,13 +2,29 @@
 from pulp import *
 
 # %%
-L = 3
+# L = 4
+# W = 2
+# H = 2
+# n = 8
+# l = [1, 1, 1, 1, 2, 2, 2, 2, ]
+# w = [1, 1, 1, 1, 1, 1, 1, 1, ]
+# h = [2, 2, 2, 2, 1, 1, 1, 1, ]
+#
+# L = 6
+# W = 2
+# H = 2
+# n = 10
+# l = [1, 1, 2, 2, 2, 2, 1, 1, 1, 1, ]
+# w = [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, ]
+# h = [2, 2, 1, 1, 1, 1, 1, 1, 1, 1, ]
+#
+L = 8
 W = 2
 H = 2
-n = 6
-l = [1, 1, 2, 2, 2, 2, ]
-w = [1, 1, 1, 1, 1, 1, ]
-h = [2, 2, 1, 1, 1, 1, ]
+n = 12
+l = [1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, ]
+w = [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, ]
+h = [2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, ]
 M = max([L, W, H])
 
 # %%
@@ -16,21 +32,21 @@ m = LpProblem(sense=LpMinimize)
 
 # %%
 x = [
-    LpVariable("x%d" %i, lowBound=0, upBound=L, cat=LpInteger) for i in range(n)
+    LpVariable("x%d" %i, lowBound=0, upBound=L, cat=LpContinuous) for i in range(n)
 ]
 y = [
-    LpVariable("y%d" %i, lowBound=0, upBound=M, cat=LpInteger) for i in range(n)
+    LpVariable("y%d" %i, lowBound=0, upBound=M, cat=LpContinuous) for i in range(n)
 ]
 z = [
-    LpVariable("z%d" %i, lowBound=0, upBound=H, cat=LpInteger) for i in range(n)
+    LpVariable("z%d" %i, lowBound=0, upBound=H, cat=LpContinuous) for i in range(n)
 ]
 
 # %%
-a = [[LpVariable("a%d%d" %(i, j), cat=LpBinary)
+a = [[LpVariable("a%02d%02d" %(i, j), cat=LpBinary)
     for j in range(n)] for i in range(n)]
-b = [[LpVariable("b%d%d" %(i, j), cat=LpBinary)
+b = [[LpVariable("b%02d%02d" %(i, j), cat=LpBinary)
     for j in range(n)] for i in range(n)]
-c = [[LpVariable("c%d%d" %(i, j), cat=LpBinary)
+c = [[LpVariable("c%02d%02d" %(i, j), cat=LpBinary)
     for j in range(n)] for i in range(n)]
 
 # %%
@@ -51,7 +67,8 @@ for i in range(n):
     m += z[i] <= H - h[i]
 
 # %%
-m.solve()
+%%time
+m.solve(PULP_CBC_CMD(threads=4, msg=True))
 
 # %%
 print(LpStatus[1])
